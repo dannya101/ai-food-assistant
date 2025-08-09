@@ -1,0 +1,84 @@
+# AI Food Assistant - Project Instructions
+
+## Project Overview
+Building an AI-powered food assistant that integrates with DoorDash and Uber Eats to help users cook desired meals by ordering missing ingredients directly to their home.
+
+## Core Functionality
+- **Chat Interface**: Users interact via text or voice with an AI chatbot
+- **Recipe Discovery**: AI determines what the user wants to cook through conversation
+- **Ingredient Analysis**: System identifies required ingredients for chosen recipes
+- **Inventory Check**: Determines what ingredients user already has vs. needs
+- **Smart Ordering**: Automatically orders missing ingredients through delivery platforms
+- **Web Scraping**: Finds optimal recipes and ingredient sources across the web
+
+## Target Integration
+- **Primary**: DoorDash and Uber Eats partnerships
+- **Goal**: Pitch as integrated food assistant feature for these platforms
+- **Value Prop**: Increase platform engagement by connecting cooking inspiration to ingredient delivery
+
+## Technical Requirements
+
+### AI/ML Components
+- **Conversational AI**: Natural language processing for user interaction
+- **Recipe Recommendation**: ML-powered recipe suggestions based on user preferences
+- **Ingredient Recognition**: Computer vision for pantry scanning (future)
+- **Voice Processing**: Speech-to-text and text-to-speech capabilities
+
+### Integration Requirements
+- **DoorDash API**: Integration for grocery/ingredient ordering
+- **Uber Eats API**: Alternative ordering platform integration
+- **Payment Processing**: Secure transaction handling
+- **Location Services**: Delivery address management
+
+### Data Sources
+- **Recipe Databases**: Web scraping from cooking websites
+- **Nutritional Data**: Ingredient nutritional information
+- **Pricing Data**: Real-time ingredient pricing from delivery platforms
+- **User Preferences**: Dietary restrictions, allergies, preferences storage
+
+### Infrastructure
+- **Model Hosting**: Brev.nvidia GPU deployment for AI model inference
+- **Backend Services**: API layer for all integrations
+- **Database**: User profiles, recipes, ingredients, order history
+- **Web Scraping**: Automated recipe and ingredient data collection
+- **Real-time Communication**: WebSocket for chat functionality
+
+## User Journey
+1. User opens AI Food Assistant
+2. Engages in conversation about cooking desires
+3. AI suggests recipes based on conversation
+4. User selects preferred recipe
+5. AI analyzes required ingredients
+6. User confirms current pantry inventory
+7. AI identifies missing ingredients
+8. AI provides ordering options (DoorDash/Uber Eats)
+9. User confirms order and delivery details
+10. Ingredients are delivered for cooking
+
+## Success Metrics
+- User engagement and retention rates
+- Recipe completion rates
+- Order conversion rates
+- Platform integration adoption
+- User satisfaction scores
+
+## Business Model
+- Commission from delivery platform orders
+- Premium subscription for advanced features
+- B2B licensing to food delivery platforms
+- Recipe and cooking content partnerships
+
+## Compliance & Security
+- PCI DSS compliance for payment processing
+- GDPR/CCPA compliance for user data
+- API rate limiting and security
+- Secure credential management for platform integrations
+
+---
+
+## Development Notes
+- Prioritize MVP with core chat and recipe recommendation
+- Build modular architecture for easy platform integration
+- Focus on mobile-first design for delivery platform compatibility
+- Implement robust error handling for API integrations
+- Plan for scalability with cloud-native architecture

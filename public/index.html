@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Food Assistant - NVIDIA Powered</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .section { background: white; border-radius: 10px; padding: 1.5rem; margin: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .restaurants-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        .restaurant-card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; transition: transform 0.2s; }
+        .restaurant-card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a6fd8; }
+        .btn-success { background: #28a745; color: white; }
+        .input-group { margin: 1rem 0; }
+        .input-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        .input-group input, .input-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; }
+        .cart { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); width: 300px; background: white; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); padding: 1rem; max-height: 400px; overflow-y: auto; }
+        .nvidia-badge { background: #76b900; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; }
+        .recommendation { background: #e8f5e8; border-left: 4px solid #28a745; padding: 1rem; margin: 0.5rem 0; border-radius: 5px; }
+        #orderStatus { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 1rem; margin: 1rem 0; }
+        .loading { text-align: center; padding: 2rem; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍕 AI Food Assistant</h1>
+        <p>Powered by <span class="nvidia-badge">NVIDIA AI</span> | Web Scraping | Order Simulation</p>
+    </div>
+
+    <div class="container">
+        <!-- AI Preferences Section -->
+        <div class="section">
+            <h2>🤖 AI Food Recommendations</h2>
+            <div class="input-group">
+                <label>Cuisine Preference:</label>
+                <select id="cuisinePreference">
+                    <option value="">Any</option>
+                    <option value="fast-food">Fast Food</option>
+                    <option value="pizza">Pizza</option>
+                    <option value="sandwiches">Sandwiches</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Budget Range:</label>
+                <select id="budgetRange">
+                    <option value="low">Under $10</option>
+                    <option value="medium">$10-20</option>
+                    <option value="high">$20+</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="getAIRecommendations()">Get AI Recommendations</button>
+            <div id="recommendations"></div>
+        </div>
+
+        <!-- Restaurants Section -->
+        <div class="section">
+            <h2>🏪 Available Restaurants</h2>
+            <button class="btn btn-primary" onclick="loadRestaurants()">Refresh Restaurant Data</button>
+            <div id="restaurants" class="restaurants-grid"></div>
+        </div>
+
+        <!-- Order Status -->
+        <div id="orderStatus" style="display: none;">
+            <h3>📦 Order Status</h3>
+            <div id="orderDetails"></div>
+        </div>
+    </div>
+
+    <!-- Shopping Cart -->
+    <div class="cart">
+        <h3>🛒 Cart</h3>
+        <div id="cartItems"></div>
+        <div id="cartTotal">Total: $0.00</div>
+        <button class="btn btn-success" onclick="placeOrder()" style="width: 100%; margin-top: 1rem;">Place Order</button>
+    </div>
+
+    <script>
+        let cart = [];
+        let restaurants = [];
+        let currentOrder = null;
+
+        async function loadRestaurants() {
+            const restaurantsDiv = document.getElementById('restaurants');
+            restaurantsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading restaurants...</p></div>';
+            
+            try {
+                const response = await fetch('/api/restaurants');
+                restaurants = await response.json();
+                
+                restaurantsDiv.innerHTML = '';
+                restaurants.forEach(restaurant => {
+                    restaurantsDiv.innerHTML += `
+                        <div class="restaurant-card">
+                            <h3>${restaurant.name}</h3>
+                            <p>⭐ ${restaurant.rating} • ${restaurant.cuisine}</p>
+                            <p>🚚 ${restaurant.deliveryTime} • $${restaurant.deliveryFee} delivery</p>
+                            <button class="btn btn-primary" onclick="loadMenu('${restaurant.id}')">View Menu</button>
+                            <div id="menu-${restaurant.id}"></div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                restaurantsDiv.innerHTML = '<p>Error loading restaurants</p>';
+            }
+        }
+
+        async function loadMenu(restaurantId) {
+            const menuDiv = document.getElementById(`menu-${restaurantId}`);
+            menuDiv.innerHTML = '<div class="loading">Loading menu...</div>';
+            
+            try {
+                const response = await fetch(`/api/restaurants/${restaurantId}/menu`);
+                const menuItems = await response.json();
+                
+                menuDiv.innerHTML = '<h4>Menu:</h4>';
+                menuItems.forEach(item => {
+                    menuDiv.innerHTML += `
+                        <div style="border-top: 1px solid #eee; padding: 0.5rem 0;">
+                            <strong>${item.name}</strong> - $${item.price}
+                            <br><small>Ingredients: ${item.ingredients.join(', ')}</small>
+                            <br><button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="addToCart('${item.name}', ${item.price}, '${restaurantId}')">Add to Cart</button>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                menuDiv.innerHTML = '<p>Error loading menu</p>';
+            }
+        }
+
+        async function getAIRecommendations() {
+            const recommendationsDiv = document.getElementById('recommendations');
+            recommendationsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>AI is analyzing your preferences...</p></div>';
+            
+            const preferences = {
+                cuisine: document.getElementById('cuisinePreference').value,
+                budget: document.getElementById('budgetRange').value
+            };
+            
+            try {
+                const response = await fetch('/api/ai/recommend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ preferences })
+                });
+                
+                const data = await response.json();
+                
+                recommendationsDiv.innerHTML = '<h3>🎯 AI Recommendations:</h3>';
+                data.recommendations.forEach(rec => {
+                    recommendationsDiv.innerHTML += `
+                        <div class="recommendation">
+                            <strong>${rec.name}</strong> - $${rec.price}
+                            <br><small>${rec.matchReason}</small>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                recommendationsDiv.innerHTML = '<p>Error getting recommendations</p>';
+            }
+        }
+
+        function addToCart(name, price, restaurantId) {
+            cart.push({ name, price, restaurantId, quantity: 1 });
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            const cartItemsDiv = document.getElementById('cartItems');
+            const cartTotalDiv = document.getElementById('cartTotal');
+            
+            cartItemsDiv.innerHTML = '';
+            let total = 0;
+            
+            cart.forEach((item, index) => {
+                total += item.price * item.quantity;
+                cartItemsDiv.innerHTML += `
+                    <div style="border-bottom: 1px solid #eee; padding: 0.5rem 0;">
+                        ${item.name} - $${item.price}
+                        <button onclick="removeFromCart(${index})" style="float: right; background: #dc3545; color: white; border: none; border-radius: 3px; padding: 2px 6px;">×</button>
+                    </div>
+                `;
+            });
+            
+            cartTotalDiv.innerHTML = `Total: $${total.toFixed(2)}`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartDisplay();
+        }
+
+        async function placeOrder() {
+            if (cart.length === 0) {
+                alert('Cart is empty!');
+                return;
+            }
+            
+            const orderData = {
+                items: cart,
+                restaurant: cart[0].restaurantId,
+                customerInfo: {
+                    name: 'Demo User',
+                    address: '123 Demo Street',
+                    phone: '555-0123'
+                }
+            };
+            
+            try {
+                const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+                
+                currentOrder = await response.json();
+                cart = [];
+                updateCartDisplay();
+                showOrderStatus();
+                trackOrder();
+            } catch (error) {
+                alert('Error placing order');
+            }
+        }
+
+        function showOrderStatus() {
+            const orderStatusDiv = document.getElementById('orderStatus');
+            orderStatusDiv.style.display = 'block';
+            updateOrderDisplay();
+        }
+
+        function updateOrderDisplay() {
+            if (!currentOrder) return;
+            
+            const orderDetailsDiv = document.getElementById('orderDetails');
+            orderDetailsDiv.innerHTML = `
+                <p><strong>Order ID:</strong> ${currentOrder.id}</p>
+                <p><strong>Status:</strong> <span id="statusText">${currentOrder.status}</span></p>
+                <p><strong>Total:</strong> $${currentOrder.total.toFixed(2)}</p>
+                <p><strong>Estimated Delivery:</strong> ${new Date(currentOrder.estimatedDelivery).toLocaleTimeString()}</p>
+            `;
+        }
+
+        async function trackOrder() {
+            if (!currentOrder) return;
+            
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/orders/${currentOrder.id}`);
+                    const updatedOrder = await response.json();
+                    
+                    if (updatedOrder.status !== currentOrder.status) {
+                        currentOrder = updatedOrder;
+                        document.getElementById('statusText').textContent = currentOrder.status;
+                        
+                        if (currentOrder.status === 'delivered') {
+                            clearInterval(interval);
+                            alert('🎉 Order delivered! Enjoy your meal!');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error tracking order:', error);
+                }
+            }, 3000);
+        }
+
+        // Load restaurants on page load
+        document.addEventListener('DOMContentLoaded', loadRestaurants);
+    </script>
+</body>
+</html>

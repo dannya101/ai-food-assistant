@@ -1,0 +1,121 @@
+# AI Food Assistant - Recommended Tech Stack
+
+## 🎯 Overall Architecture
+**Microservices + AI-First + Cloud-Native**
+
+## 🤖 AI/ML Stack
+- **Primary Model**: Llama 3.1 or Mistral 7B via Brev.nvidia
+- **Vector Database**: Pinecone or Weaviate (recipe embeddings)
+- **ML Framework**: PyTorch + Transformers
+- **Voice Processing**: Whisper (OpenAI) + TTS
+- **Recipe Recommendations**: Sentence-BERT for semantic search
+
+## 🌐 Backend Stack
+- **Runtime**: Node.js with TypeScript
+- **Framework**: Express.js or Fastify
+- **Database**: PostgreSQL (primary) + Redis (cache/sessions)
+- **ORM**: Prisma
+- **API Design**: REST + GraphQL (for complex queries)
+- **Authentication**: Auth0 or Supabase Auth
+
+## 🎨 Frontend Stack
+- **Framework**: Next.js 14 (App Router)
+- **UI Library**: Tailwind CSS + shadcn/ui
+- **State Management**: Zustand or TanStack Query
+- **Real-time**: Socket.io or WebSockets
+- **Voice UI**: Web Speech API + custom controls
+- **Mobile**: Progressive Web App (PWA) initially
+
+## 🔗 Integration Layer
+- **DoorDash**: DoorDash Drive API
+- **Uber Eats**: Uber Direct API
+- **Payment**: Stripe Connect
+- **Web Scraping**: Playwright + Cheerio
+- **Recipe APIs**: Spoonacular, Edamam
+- **Maps**: Google Maps API (delivery addresses)
+
+## ☁️ Infrastructure
+- **Hosting**: Vercel (frontend) + Railway/Fly.io (backend)
+- **AI Inference**: Brev.nvidia GPU instances
+- **CDN**: Cloudflare
+- **Monitoring**: Sentry + PostHog
+- **CI/CD**: GitHub Actions
+
+## 📊 Data Stack
+- **Primary DB**: PostgreSQL on Supabase or Railway
+- **Vector Store**: Pinecone (recipe embeddings)
+- **Cache**: Redis (user sessions, API responses)
+- **Analytics**: PostHog or Mixpanel
+- **Search**: Algolia (recipe search)
+
+## 🔒 Security & Compliance
+- **Environment**: dotenv + secure key management
+- **API Security**: JWT + rate limiting (express-rate-limit)
+- **Data Encryption**: bcrypt + AES for sensitive data
+- **HTTPS**: SSL/TLS everywhere
+- **Compliance**: Built-in GDPR consent management
+
+## 📱 Mobile Strategy
+**Phase 1**: PWA with native app-like experience
+**Phase 2**: React Native for iOS/Android native apps
+
+## 🚀 Deployment Strategy
+- **Development**: Local Docker containers
+- **Staging**: Preview deployments on Vercel/Railway
+- **Production**: Auto-deploy from main branch
+- **AI Models**: Brev.nvidia for GPU-accelerated inference
+
+## 📦 Key Dependencies
+
+### Backend
+```json
+{
+  "express": "^4.18.0",
+  "prisma": "^5.0.0",
+  "@prisma/client": "^5.0.0",
+  "socket.io": "^4.7.0",
+  "stripe": "^13.0.0",
+  "playwright": "^1.38.0",
+  "openai": "^4.0.0",
+  "redis": "^4.6.0"
+}
+```
+
+### Frontend
+```json
+{
+  "next": "^14.0.0",
+  "react": "^18.2.0",
+  "tailwindcss": "^3.3.0",
+  "@tanstack/react-query": "^4.35.0",
+  "socket.io-client": "^4.7.0",
+  "framer-motion": "^10.16.0"
+}
+```
+
+## 🏗️ Project Structure
+```
+ai-food-assistant/
+├── apps/
+│   ├── web/                 # Next.js frontend
+│   ├── api/                 # Node.js backend
+│   └── ai-service/          # Python AI microservice
+├── packages/
+│   ├── shared/              # Shared TypeScript types
+│   ├── database/            # Prisma schema & migrations
+│   └── ui/                  # Shared UI components
+├── infrastructure/
+│   ├── docker/              # Docker configurations
+│   └── deployment/          # Deployment scripts
+└── docs/                    # Documentation
+```
+
+## 🎯 MVP Priority Stack
+1. **Next.js** + **TypeScript** (frontend)
+2. **Node.js** + **Express** (backend API)
+3. **PostgreSQL** (database)
+4. **Brev.nvidia** (AI model hosting)
+5. **Spoonacular API** (initial recipe data)
+6. **Socket.io** (real-time chat)
+
+This stack prioritizes rapid development, scalability, and easy integration with delivery platforms while maintaining the flexibility to add advanced AI features.
