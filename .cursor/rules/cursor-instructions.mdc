@@ -1,15 +1,16 @@
 # AI Food Assistant - Project Instructions
 
 ## Project Overview
-Building an AI-powered food assistant that integrates with DoorDash and Uber Eats to help users cook desired meals by ordering missing ingredients directly to their home.
+Building an AI-powered food assistant with a ChatGPT-style interface that helps users discover food, analyze ingredients, and simulate ordering from restaurants and grocery stores.
 
 ## Core Functionality
-- **Chat Interface**: Users interact via text or voice with an AI chatbot
-- **Recipe Discovery**: AI determines what the user wants to cook through conversation
-- **Ingredient Analysis**: System identifies required ingredients for chosen recipes
-- **Inventory Check**: Determines what ingredients user already has vs. needs
-- **Smart Ordering**: Automatically orders missing ingredients through delivery platforms
-- **Web Scraping**: Finds optimal recipes and ingredient sources across the web
+- **ChatGPT-Style Interface**: Central chat interface for natural conversation about food preferences
+- **Conversational Food Discovery**: AI determines what user wants to eat through natural dialogue
+- **Ingredient Analysis**: AI identifies required ingredients and suggests what user might need
+- **Inventory Management**: AI helps track what ingredients user has vs. needs
+- **Restaurant & Grocery Sidebar**: Side panel showing available restaurants and grocery stores
+- **Order Simulation**: Simulates ordering from both restaurants and grocery stores
+- **Web Scraping**: Collects restaurant menus and grocery store ingredient data
 
 ## Target Integration
 - **Primary**: DoorDash and Uber Eats partnerships
@@ -44,16 +45,16 @@ Building an AI-powered food assistant that integrates with DoorDash and Uber Eat
 - **Real-time Communication**: WebSocket for chat functionality
 
 ## User Journey
-1. User opens AI Food Assistant
-2. Engages in conversation about cooking desires
-3. AI suggests recipes based on conversation
-4. User selects preferred recipe
-5. AI analyzes required ingredients
-6. User confirms current pantry inventory
-7. AI identifies missing ingredients
-8. AI provides ordering options (DoorDash/Uber Eats)
-9. User confirms order and delivery details
-10. Ingredients are delivered for cooking
+1. User opens AI Food Assistant with ChatGPT-style interface
+2. User types natural language about what they want to eat
+3. AI engages in conversation to understand preferences and dietary needs
+4. AI suggests food options (restaurant meals OR home cooking recipes)
+5. If home cooking: AI analyzes required ingredients and asks what user has
+6. AI identifies missing ingredients and suggests grocery stores from sidebar
+7. If restaurant meal: AI suggests restaurants from sidebar
+8. User can chat to refine choices and get recommendations
+9. User selects from sidebar and places simulated order
+10. AI provides cooking guidance or order tracking
 
 ## Success Metrics
 - User engagement and retention rates
@@ -76,9 +77,19 @@ Building an AI-powered food assistant that integrates with DoorDash and Uber Eat
 
 ---
 
+## UI/UX Requirements
+- **Central Chat Interface**: Large ChatGPT-style chat area in center of screen
+- **Sidebar Layout**: Fixed sidebar on right showing restaurants and grocery stores
+- **Mobile-First Design**: Responsive layout that works on all devices
+- **Real-time Chat**: Instant message sending and receiving with typing indicators
+- **Smart Suggestions**: Quick reply buttons and food suggestion chips
+- **Visual Food Cards**: Rich media for restaurant items and recipes
+
 ## Development Notes
-- Prioritize MVP with core chat and recipe recommendation
-- Build modular architecture for easy platform integration
-- Focus on mobile-first design for delivery platform compatibility
-- Implement robust error handling for API integrations
-- Plan for scalability with cloud-native architecture
+- Prioritize ChatGPT-style conversational interface as main feature
+- Implement NVIDIA AI for natural language understanding and food recommendations
+- Build sidebar component for restaurant/grocery store browsing
+- Create chat message history and context management
+- Implement real-time chat with smooth animations
+- Focus on conversational flow that feels natural and helpful
+- Add quick actions and suggestions to speed up user interaction

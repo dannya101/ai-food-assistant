@@ -33,6 +33,20 @@ router.post('/analyze-ingredients', async (req, res) => {
   }
 });
 
+router.post('/chat', async (req, res) => {
+  try {
+    const { message, history } = req.body;
+    
+    const response = await aiService.getChatResponse(message, history);
+    res.json({ 
+      response,
+      suggestions: generateSuggestions(message, response)
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get chat response' });
+  }
+});
+
 router.get('/health', (req, res) => {
   res.json({ 
     status: 'healthy',
@@ -40,5 +54,20 @@ router.get('/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+function generateSuggestions(userMessage, aiResponse) {
+  const msg = userMessage.toLowerCase();
+  const resp = aiResponse.toLowerCase();
+  
+  if (resp.includes('recipe') || resp.includes('cook')) {
+    return ['Show me the recipe', 'What ingredients do I need?', 'How long does it take?'];
+  } else if (resp.includes('restaurant') || resp.includes('order')) {
+    return ['Show me the menu', 'How much does delivery cost?', 'Place an order'];
+  } else if (resp.includes('healthy') || resp.includes('nutrition')) {
+    return ['Show nutritional info', 'Any other healthy options?', 'What about calories?'];
+  } else {
+    return ['Tell me more', 'Show me options', 'What else can you recommend?'];
+  }
+}
 
 module.exports = router;

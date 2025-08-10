@@ -6,273 +6,611 @@
     <title>AI Food Assistant - NVIDIA Powered</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        .section { background: white; border-radius: 10px; padding: 1.5rem; margin: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .restaurants-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
-        .restaurant-card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; transition: transform 0.2s; }
-        .restaurant-card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
-        .btn-primary { background: #667eea; color: white; }
-        .btn-primary:hover { background: #5a6fd8; }
-        .btn-success { background: #28a745; color: white; }
-        .input-group { margin: 1rem 0; }
-        .input-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
-        .input-group input, .input-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; }
-        .cart { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); width: 300px; background: white; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); padding: 1rem; max-height: 400px; overflow-y: auto; }
-        .nvidia-badge { background: #76b900; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; }
-        .recommendation { background: #e8f5e8; border-left: 4px solid #28a745; padding: 1rem; margin: 0.5rem 0; border-radius: 5px; }
-        #orderStatus { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 1rem; margin: 1rem 0; }
-        .loading { text-align: center; padding: 2rem; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #343541; 
+            color: #ececf1;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* Main Chat Area */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: calc(100% - 320px);
+        }
+        
+        .chat-header {
+            background: #202123;
+            padding: 1rem;
+            border-bottom: 1px solid #444654;
+            text-align: center;
+        }
+        
+        .chat-header h1 {
+            color: #ececf1;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .nvidia-badge { 
+            background: #76b900; 
+            color: white; 
+            padding: 0.25rem 0.75rem; 
+            border-radius: 15px; 
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #343541;
+        }
+        
+        .message {
+            margin-bottom: 1.5rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .message.user {
+            background: #444654;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-left: 2rem;
+        }
+        
+        .message.assistant {
+            background: #343541;
+            padding: 1rem;
+            border-left: 3px solid #76b900;
+            margin-right: 2rem;
+        }
+        
+        .message-content {
+            line-height: 1.6;
+        }
+        
+        .typing-indicator {
+            display: none;
+            background: #343541;
+            padding: 1rem;
+            border-left: 3px solid #76b900;
+            margin-right: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .typing-dots {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .typing-dots span {
+            height: 8px;
+            width: 8px;
+            background: #76b900;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        
+        .chat-input-container {
+            background: #40414f;
+            padding: 1rem;
+            border-top: 1px solid #444654;
+        }
+        
+        .chat-input-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .chat-input {
+            width: 100%;
+            background: #40414f;
+            border: 1px solid #565869;
+            border-radius: 8px;
+            padding: 12px 45px 12px 15px;
+            color: #ececf1;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            min-height: 50px;
+            max-height: 120px;
+        }
+        
+        .chat-input:focus {
+            border-color: #76b900;
+        }
+        
+        .send-button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #76b900;
+            border: none;
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .send-button:hover {
+            background: #5a8f00;
+        }
+        
+        .send-button:disabled {
+            background: #444654;
+            cursor: not-allowed;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: #202123;
+            border-left: 1px solid #444654;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid #444654;
+            background: #1a1b1f;
+        }
+        
+        .sidebar-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 0.5rem;
+            background: #40414f;
+            border: none;
+            border-radius: 6px;
+            color: #ececf1;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .tab-button.active {
+            background: #76b900;
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        
+        .place-card {
+            background: #40414f;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #565869;
+        }
+        
+        .place-card:hover {
+            background: #4a4b5a;
+            border-color: #76b900;
+        }
+        
+        .place-card h3 {
+            color: #ececf1;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .place-card .info {
+            color: #8e8ea0;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .place-card .items {
+            color: #8e8ea0;
+            font-size: 0.8rem;
+        }
+        
+        .quick-suggestions {
+            margin-bottom: 1rem;
+        }
+        
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .suggestion-chip {
+            background: #40414f;
+            border: 1px solid #565869;
+            border-radius: 15px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            color: #ececf1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .suggestion-chip:hover {
+            background: #76b900;
+            border-color: #76b900;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            color: #8e8ea0;
+            margin-top: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                right: -320px;
+                top: 0;
+                z-index: 1000;
+                transition: right 0.3s ease;
+            }
+            
+            .sidebar.open {
+                right: 0;
+            }
+            
+            .chat-container {
+                max-width: 100%;
+            }
+            
+            .mobile-sidebar-toggle {
+                position: fixed;
+                top: 1rem;
+                right: 1rem;
+                background: #76b900;
+                border: none;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                color: white;
+                cursor: pointer;
+                z-index: 1001;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🍕 AI Food Assistant</h1>
-        <p>Powered by <span class="nvidia-badge">NVIDIA AI</span> | Web Scraping | Order Simulation</p>
-    </div>
-
-    <div class="container">
-        <!-- AI Preferences Section -->
-        <div class="section">
-            <h2>🤖 AI Food Recommendations</h2>
-            <div class="input-group">
-                <label>Cuisine Preference:</label>
-                <select id="cuisinePreference">
-                    <option value="">Any</option>
-                    <option value="fast-food">Fast Food</option>
-                    <option value="pizza">Pizza</option>
-                    <option value="sandwiches">Sandwiches</option>
-                </select>
+    <div class="app-container">
+        <!-- Main Chat Interface -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>🍕 AI Food Assistant</h1>
+                <span class="nvidia-badge">Powered by NVIDIA AI</span>
             </div>
-            <div class="input-group">
-                <label>Budget Range:</label>
-                <select id="budgetRange">
-                    <option value="low">Under $10</option>
-                    <option value="medium">$10-20</option>
-                    <option value="high">$20+</option>
-                </select>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <h2>👋 Welcome to your AI Food Assistant!</h2>
+                    <p>Tell me what you're craving, and I'll help you find the perfect meal or recipe.</p>
+                    
+                    <div class="quick-suggestions">
+                        <h3>Quick suggestions:</h3>
+                        <div class="suggestion-chips">
+                            <span class="suggestion-chip" onclick="sendSuggestion('I want something healthy for lunch')">🥗 Healthy lunch</span>
+                            <span class="suggestion-chip" onclick="sendSuggestion('I need a quick dinner recipe')">⚡ Quick dinner</span>
+                            <span class="suggestion-chip" onclick="sendSuggestion('What can I make with chicken?')">🍗 Chicken recipes</span>
+                            <span class="suggestion-chip" onclick="sendSuggestion('I want comfort food')">🍲 Comfort food</span>
+                            <span class="suggestion-chip" onclick="sendSuggestion('Show me vegetarian options')">🌱 Vegetarian</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button class="btn btn-primary" onclick="getAIRecommendations()">Get AI Recommendations</button>
-            <div id="recommendations"></div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span style="margin-left: 10px;">AI is thinking...</span>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea 
+                        id="chatInput" 
+                        class="chat-input" 
+                        placeholder="Tell me what you're craving..."
+                        rows="1"
+                    ></textarea>
+                    <button id="sendButton" class="send-button" onclick="sendMessage()">
+                        ➤
+                    </button>
+                </div>
+            </div>
         </div>
-
-        <!-- Restaurants Section -->
-        <div class="section">
-            <h2>🏪 Available Restaurants</h2>
-            <button class="btn btn-primary" onclick="loadRestaurants()">Refresh Restaurant Data</button>
-            <div id="restaurants" class="restaurants-grid"></div>
-        </div>
-
-        <!-- Order Status -->
-        <div id="orderStatus" style="display: none;">
-            <h3>📦 Order Status</h3>
-            <div id="orderDetails"></div>
+        
+        <!-- Sidebar for Restaurants & Grocery Stores -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-tabs">
+                    <button class="tab-button active" onclick="switchTab('restaurants')" id="restaurantTab">🏪 Restaurants</button>
+                    <button class="tab-button" onclick="switchTab('grocery')" id="groceryTab">🛒 Grocery</button>
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+                <div id="restaurantContent">
+                    <div class="place-card" onclick="selectPlace('mcdonalds')">
+                        <h3>McDonald's</h3>
+                        <div class="info">⭐ 4.2 • Fast Food • 15-25 min • $2.99 delivery</div>
+                        <div class="items">Big Mac, McNuggets, Fries, McFlurry...</div>
+                    </div>
+                    
+                    <div class="place-card" onclick="selectPlace('dominos')">
+                        <h3>Domino's Pizza</h3>
+                        <div class="info">⭐ 4.5 • Pizza • 20-30 min • $3.49 delivery</div>
+                        <div class="items">Pepperoni Pizza, Wings, Breadsticks...</div>
+                    </div>
+                    
+                    <div class="place-card" onclick="selectPlace('subway')">
+                        <h3>Subway</h3>
+                        <div class="info">⭐ 4.0 • Sandwiches • 10-20 min • $1.99 delivery</div>
+                        <div class="items">Italian BMT, Chicken Teriyaki, Cookies...</div>
+                    </div>
+                </div>
+                
+                <div id="groceryContent" style="display: none;">
+                    <div class="place-card" onclick="selectPlace('walmart')">
+                        <h3>Walmart Grocery</h3>
+                        <div class="info">⭐ 4.1 • Groceries • 45-60 min • $5.99 delivery</div>
+                        <div class="items">Fresh produce, meat, dairy, pantry staples...</div>
+                    </div>
+                    
+                    <div class="place-card" onclick="selectPlace('kroger')">
+                        <h3>Kroger</h3>
+                        <div class="info">⭐ 4.3 • Groceries • 30-45 min • $4.99 delivery</div>
+                        <div class="items">Organic options, fresh ingredients, spices...</div>
+                    </div>
+                    
+                    <div class="place-card" onclick="selectPlace('wholefood')">
+                        <h3>Whole Foods</h3>
+                        <div class="info">⭐ 4.6 • Organic • 35-50 min • $7.99 delivery</div>
+                        <div class="items">Premium ingredients, organic produce...</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Shopping Cart -->
-    <div class="cart">
-        <h3>🛒 Cart</h3>
-        <div id="cartItems"></div>
-        <div id="cartTotal">Total: $0.00</div>
-        <button class="btn btn-success" onclick="placeOrder()" style="width: 100%; margin-top: 1rem;">Place Order</button>
-    </div>
+    
+    <!-- Mobile sidebar toggle -->
+    <button class="mobile-sidebar-toggle" onclick="toggleSidebar()" style="display: none;">☰</button>
 
     <script>
-        let cart = [];
-        let restaurants = [];
-        let currentOrder = null;
+        let chatHistory = [];
+        let currentPlace = null;
+        let isTyping = false;
 
-        async function loadRestaurants() {
-            const restaurantsDiv = document.getElementById('restaurants');
-            restaurantsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading restaurants...</p></div>';
+        // Chat functionality
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
             
-            try {
-                const response = await fetch('/api/restaurants');
-                restaurants = await response.json();
-                
-                restaurantsDiv.innerHTML = '';
-                restaurants.forEach(restaurant => {
-                    restaurantsDiv.innerHTML += `
-                        <div class="restaurant-card">
-                            <h3>${restaurant.name}</h3>
-                            <p>⭐ ${restaurant.rating} • ${restaurant.cuisine}</p>
-                            <p>🚚 ${restaurant.deliveryTime} • $${restaurant.deliveryFee} delivery</p>
-                            <button class="btn btn-primary" onclick="loadMenu('${restaurant.id}')">View Menu</button>
-                            <div id="menu-${restaurant.id}"></div>
-                        </div>
-                    `;
-                });
-            } catch (error) {
-                restaurantsDiv.innerHTML = '<p>Error loading restaurants</p>';
+            if (message && !isTyping) {
+                addMessage('user', message);
+                input.value = '';
+                handleAIResponse(message);
             }
         }
 
-        async function loadMenu(restaurantId) {
-            const menuDiv = document.getElementById(`menu-${restaurantId}`);
-            menuDiv.innerHTML = '<div class="loading">Loading menu...</div>';
-            
-            try {
-                const response = await fetch(`/api/restaurants/${restaurantId}/menu`);
-                const menuItems = await response.json();
-                
-                menuDiv.innerHTML = '<h4>Menu:</h4>';
-                menuItems.forEach(item => {
-                    menuDiv.innerHTML += `
-                        <div style="border-top: 1px solid #eee; padding: 0.5rem 0;">
-                            <strong>${item.name}</strong> - $${item.price}
-                            <br><small>Ingredients: ${item.ingredients.join(', ')}</small>
-                            <br><button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="addToCart('${item.name}', ${item.price}, '${restaurantId}')">Add to Cart</button>
-                        </div>
-                    `;
-                });
-            } catch (error) {
-                menuDiv.innerHTML = '<p>Error loading menu</p>';
-            }
+        function sendSuggestion(message) {
+            addMessage('user', message);
+            handleAIResponse(message);
         }
 
-        async function getAIRecommendations() {
-            const recommendationsDiv = document.getElementById('recommendations');
-            recommendationsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>AI is analyzing your preferences...</p></div>';
+        function addMessage(type, content) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const welcomeMessage = messagesContainer.querySelector('.welcome-message');
             
-            const preferences = {
-                cuisine: document.getElementById('cuisinePreference').value,
-                budget: document.getElementById('budgetRange').value
-            };
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            chatHistory.push({ type, content });
+        }
+
+        async function handleAIResponse(userMessage) {
+            showTypingIndicator();
             
             try {
-                const response = await fetch('/api/ai/recommend', {
+                // Simulate AI processing time
+                await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 2000));
+                
+                const response = await fetch('/api/ai/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ preferences })
+                    body: JSON.stringify({ 
+                        message: userMessage,
+                        history: chatHistory.slice(-10) // Last 10 messages for context
+                    })
                 });
                 
                 const data = await response.json();
+                hideTypingIndicator();
+                addMessage('assistant', data.response);
                 
-                recommendationsDiv.innerHTML = '<h3>🎯 AI Recommendations:</h3>';
-                data.recommendations.forEach(rec => {
-                    recommendationsDiv.innerHTML += `
-                        <div class="recommendation">
-                            <strong>${rec.name}</strong> - $${rec.price}
-                            <br><small>${rec.matchReason}</small>
-                        </div>
-                    `;
-                });
+                // Handle any suggested actions
+                if (data.suggestions) {
+                    addSuggestionChips(data.suggestions);
+                }
+                
             } catch (error) {
-                recommendationsDiv.innerHTML = '<p>Error getting recommendations</p>';
+                hideTypingIndicator();
+                addMessage('assistant', getDefaultResponse(userMessage));
             }
         }
 
-        function addToCart(name, price, restaurantId) {
-            cart.push({ name, price, restaurantId, quantity: 1 });
-            updateCartDisplay();
+        function getDefaultResponse(userMessage) {
+            const msg = userMessage.toLowerCase();
+            
+            if (msg.includes('healthy') || msg.includes('salad')) {
+                return "🥗 Great choice! For healthy options, I'd recommend checking out Subway for fresh sandwiches with lots of veggies, or you could get ingredients from Whole Foods to make a nutritious salad at home. What specific healthy foods do you enjoy?";
+            } else if (msg.includes('quick') || msg.includes('fast')) {
+                return "⚡ For quick meals, McDonald's is your fastest option (15-25 min), or I can help you find a simple recipe that takes under 30 minutes to cook. Do you want to order out or cook something?";
+            } else if (msg.includes('chicken')) {
+                return "🍗 Chicken is so versatile! You could get Chicken McNuggets from McDonald's, or grab some fresh chicken from Kroger and I can suggest recipes like chicken teriyaki, grilled chicken, or chicken stir-fry. What cooking style interests you?";
+            } else if (msg.includes('comfort') || msg.includes('comfort food')) {
+                return "🍲 Comfort food is the best! Pizza from Domino's is always comforting, or for homemade comfort food, you could make mac and cheese, chicken soup, or grilled cheese. What brings you comfort?";
+            } else if (msg.includes('vegetarian') || msg.includes('veggie')) {
+                return "🌱 Lots of great vegetarian options! Subway has veggie subs, or you can get fresh produce from Whole Foods for dishes like vegetable stir-fry, caprese salad, or pasta primavera. Any specific vegetables you love?";
+            } else {
+                return "I'd love to help you find the perfect meal! Tell me more about what you're in the mood for - are you looking to order from a restaurant or cook something at home? I can help you with both options using the places in the sidebar.";
+            }
         }
 
-        function updateCartDisplay() {
-            const cartItemsDiv = document.getElementById('cartItems');
-            const cartTotalDiv = document.getElementById('cartTotal');
+        function addSuggestionChips(suggestions) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const chipDiv = document.createElement('div');
+            chipDiv.className = 'suggestion-chips';
+            chipDiv.style.marginTop = '1rem';
             
-            cartItemsDiv.innerHTML = '';
-            let total = 0;
-            
-            cart.forEach((item, index) => {
-                total += item.price * item.quantity;
-                cartItemsDiv.innerHTML += `
-                    <div style="border-bottom: 1px solid #eee; padding: 0.5rem 0;">
-                        ${item.name} - $${item.price}
-                        <button onclick="removeFromCart(${index})" style="float: right; background: #dc3545; color: white; border: none; border-radius: 3px; padding: 2px 6px;">×</button>
-                    </div>
-                `;
+            suggestions.forEach(suggestion => {
+                const chip = document.createElement('span');
+                chip.className = 'suggestion-chip';
+                chip.textContent = suggestion;
+                chip.onclick = () => sendSuggestion(suggestion);
+                chipDiv.appendChild(chip);
             });
             
-            cartTotalDiv.innerHTML = `Total: $${total.toFixed(2)}`;
+            messagesContainer.appendChild(chipDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCartDisplay();
-        }
-
-        async function placeOrder() {
-            if (cart.length === 0) {
-                alert('Cart is empty!');
-                return;
-            }
+        function showTypingIndicator() {
+            isTyping = true;
+            document.getElementById('typingIndicator').style.display = 'block';
+            document.getElementById('sendButton').disabled = true;
             
-            const orderData = {
-                items: cart,
-                restaurant: cart[0].restaurantId,
-                customerInfo: {
-                    name: 'Demo User',
-                    address: '123 Demo Street',
-                    phone: '555-0123'
-                }
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            isTyping = false;
+            document.getElementById('typingIndicator').style.display = 'none';
+            document.getElementById('sendButton').disabled = false;
+        }
+
+        // Sidebar functionality
+        function switchTab(tab) {
+            const restaurantTab = document.getElementById('restaurantTab');
+            const groceryTab = document.getElementById('groceryTab');
+            const restaurantContent = document.getElementById('restaurantContent');
+            const groceryContent = document.getElementById('groceryContent');
+            
+            if (tab === 'restaurants') {
+                restaurantTab.classList.add('active');
+                groceryTab.classList.remove('active');
+                restaurantContent.style.display = 'block';
+                groceryContent.style.display = 'none';
+            } else {
+                groceryTab.classList.add('active');
+                restaurantTab.classList.remove('active');
+                groceryContent.style.display = 'block';
+                restaurantContent.style.display = 'none';
+            }
+        }
+
+        function selectPlace(placeId) {
+            currentPlace = placeId;
+            const placeName = getPlaceName(placeId);
+            
+            addMessage('assistant', `Great choice! I see you're interested in ${placeName}. What would you like to know about their menu or would you like me to help you place an order?`);
+        }
+
+        function getPlaceName(placeId) {
+            const places = {
+                'mcdonalds': "McDonald's",
+                'dominos': "Domino's Pizza",
+                'subway': 'Subway',
+                'walmart': 'Walmart Grocery',
+                'kroger': 'Kroger',
+                'wholefood': 'Whole Foods'
             };
-            
-            try {
-                const response = await fetch('/api/orders', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(orderData)
-                });
-                
-                currentOrder = await response.json();
-                cart = [];
-                updateCartDisplay();
-                showOrderStatus();
-                trackOrder();
-            } catch (error) {
-                alert('Error placing order');
+            return places[placeId] || placeId;
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Input handling
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Auto-resize textarea
+        document.getElementById('chatInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Mobile responsiveness
+        function checkMobile() {
+            const mobileToggle = document.querySelector('.mobile-sidebar-toggle');
+            if (window.innerWidth <= 768) {
+                mobileToggle.style.display = 'block';
+            } else {
+                mobileToggle.style.display = 'none';
+                document.getElementById('sidebar').classList.remove('open');
             }
         }
 
-        function showOrderStatus() {
-            const orderStatusDiv = document.getElementById('orderStatus');
-            orderStatusDiv.style.display = 'block';
-            updateOrderDisplay();
-        }
-
-        function updateOrderDisplay() {
-            if (!currentOrder) return;
-            
-            const orderDetailsDiv = document.getElementById('orderDetails');
-            orderDetailsDiv.innerHTML = `
-                <p><strong>Order ID:</strong> ${currentOrder.id}</p>
-                <p><strong>Status:</strong> <span id="statusText">${currentOrder.status}</span></p>
-                <p><strong>Total:</strong> $${currentOrder.total.toFixed(2)}</p>
-                <p><strong>Estimated Delivery:</strong> ${new Date(currentOrder.estimatedDelivery).toLocaleTimeString()}</p>
-            `;
-        }
-
-        async function trackOrder() {
-            if (!currentOrder) return;
-            
-            const interval = setInterval(async () => {
-                try {
-                    const response = await fetch(`/api/orders/${currentOrder.id}`);
-                    const updatedOrder = await response.json();
-                    
-                    if (updatedOrder.status !== currentOrder.status) {
-                        currentOrder = updatedOrder;
-                        document.getElementById('statusText').textContent = currentOrder.status;
-                        
-                        if (currentOrder.status === 'delivered') {
-                            clearInterval(interval);
-                            alert('🎉 Order delivered! Enjoy your meal!');
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error tracking order:', error);
-                }
-            }, 3000);
-        }
-
-        // Load restaurants on page load
-        document.addEventListener('DOMContentLoaded', loadRestaurants);
+        window.addEventListener('resize', checkMobile);
+        document.addEventListener('DOMContentLoaded', checkMobile);
     </script>
 </body>
 </html>
